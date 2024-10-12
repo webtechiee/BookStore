@@ -52,7 +52,7 @@ public class JWTService {
     public String generateToken(Customer customer){
         return Jwts
                 .builder()
-                .subject(customer.getUsername())
+                .subject(customer.getEmail())
                 .issuedAt(new Date(System.currentTimeMillis()))
                 .expiration(new Date(System.currentTimeMillis()+24*3600*1000))
                 .signWith(getSignInKey())

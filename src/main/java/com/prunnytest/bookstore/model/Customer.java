@@ -19,6 +19,7 @@ import static jakarta.persistence.FetchType.EAGER;
 @Table(name = "customers")
 @Getter
 @Setter
+@Builder
 
 public class Customer implements UserDetails {
     @Id
@@ -44,7 +45,7 @@ public class Customer implements UserDetails {
 
     @Override
     public String getUsername() {
-        return username;
+        return email;
     }
 
     @Override

@@ -51,14 +51,24 @@ public class BookController {
     @GetMapping("/{title}")
     ResponseEntity<Map<String, Object>> getBookByTitle(@PathVariable("title") String title)  throws NotFoundException {
 
-        BookResponseDto book = bookService.getBookByTitle(title);
+        try {
+            BookResponseDto book = bookService.getBookByTitle(title);
 
-        Map<String, Object> response = new HashMap<>();
-        response.put("status", "success");
-        response.put("statusCode", HttpStatus.OK.value());
-        response.put("message", BOOK_RETRIEVED_SUCCESS);
-        response.put("data", book);
-        return ResponseEntity.ok(response);
+            Map<String, Object> response = new HashMap<>();
+            response.put("status", "success");
+            response.put("statusCode", HttpStatus.OK.value());
+            response.put("message", "Book retrieved successfully");
+            response.put("data", book);
+
+            return ResponseEntity.ok(response);
+        } catch (NotFoundException ex) {
+            Map<String, Object> response = new HashMap<>();
+            response.put("status", "error");
+            response.put("statusCode", HttpStatus.NOT_FOUND.value());
+            response.put("message", ex.getMessage());
+
+            return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
+        }
     }
 
     @Operation(summary = "Update the Book using the book ID")
