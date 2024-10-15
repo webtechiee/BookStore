@@ -10,6 +10,7 @@ import com.prunnytest.bookstore.model.Role;
 import com.prunnytest.bookstore.repository.CustomerRepo;
 import com.prunnytest.bookstore.security.jwt.JWTService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.mail.MailException;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -23,6 +24,7 @@ public class SecurityService {
     private final PasswordEncoder passwordEncoder;
     private final JWTService jwtService;
     private final AuthenticationManager authenticationManager;
+    private final OtpService otpService;
 
     public CustomerResponse loginAccount(AuthenticationRequest authenticationRequest) throws NotFoundException {
         Customer customer = customerRepo.findByEmail(authenticationRequest.email())
@@ -44,7 +46,6 @@ public class SecurityService {
     }
 
 
-
     public AuthenticationResponse registerAccount(CustomerRequest customerRequest) {
         if (customerRepo.findByEmail(customerRequest.email()).isPresent()) {
             return new AuthenticationResponse(customerRequest.email(), "already exists");
@@ -56,7 +57,15 @@ public class SecurityService {
                 .password(passwordEncoder.encode(customerRequest.password()))
                 .role(Role.valueOf(customerRequest.role()))
                 .build();
+        try{
+            otpService.sendOTP(customerRequest.email());
+            System.out.println("sent");
+        } catch (MailException e) {
+            System.err.println(e.getMessage());
+        }
         customerRepo.save(customer);
+
+
 
         String token = jwtService.generateToken(customer);
         return AuthenticationResponse
